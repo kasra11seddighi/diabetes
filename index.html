@@ -2,56 +2,63 @@
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <title>Diabetes Tracker Pro</title>
+  <title>Diabetes Tracker</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
+
 <header>
   <h1>Diabetes Tracker</h1>
-  <p>ثبت قند، انسولین و مدیریت هوشمند</p>
+  <p>ثبت قند و انسولین (لوکال)</p>
 </header>
+
 <main class="grid">
 
+  <!-- ثبت قند -->
   <section class="card">
     <h2>قند خون</h2>
     <select id="time">
-      <option value="صبح">صبح</option>
-      <option value="ناهار">ناهار</option>
-      <option value="عصر">عصر</option>
-      <option value="شب">شب</option>
+      <option>صبح</option>
+      <option>ناهار</option>
+      <option>عصر</option>
+      <option>شب</option>
     </select>
-    <input type="number" id="sugar" min="40" max="600" placeholder="قند (mg/dl)">
-    <input type="text" id="noteSugar" placeholder="توضیح (اختیاری)">
+    <input type="number" id="sugar" min="40" max="600" placeholder="mg/dl">
+    <input type="text" id="noteSugar" placeholder="توضیح">
     <button onclick="addSugar()">ثبت قند</button>
   </section>
 
+  <!-- ثبت انسولین -->
   <section class="card">
     <h2>انسولین</h2>
     <select id="insulinType">
-      <option value="نوورپید">نوورپید</option>
-      <option value="توژئو">توژئو</option>
+      <option>نوورپید</option>
+      <option>توژئو</option>
     </select>
     <select id="insulinTime">
-      <option value="صبح">صبح</option>
-      <option value="ناهار">ناهار</option>
-      <option value="شب">شب</option>
+      <option>صبح</option>
+      <option>ناهار</option>
+      <option>شب</option>
     </select>
-    <input type="number" id="units" min="0" max="60" placeholder="واحد انسولین">
-    <input type="text" id="noteInsulin" placeholder="توضیح (اختیاری)">
+    <input type="number" id="units" min="0" max="60" placeholder="واحد">
+    <input type="text" id="noteInsulin" placeholder="توضیح">
     <button onclick="addInsulin()">ثبت انسولین</button>
   </section>
 
+  <!-- میانگین -->
   <section class="card stat">
     <h2>میانگین قند</h2>
     <span id="average">---</span>
   </section>
 
+  <!-- نمودار -->
   <section class="card chart">
     <canvas id="chart"></canvas>
   </section>
 
+  <!-- سوابق قند -->
   <section class="card full">
     <h2>سوابق قند خون</h2>
     <button onclick="exportPDF()">خروجی PDF</button>
@@ -61,7 +68,7 @@
           <th>تاریخ</th>
           <th>ساعت</th>
           <th>زمان</th>
-          <th>مقدار</th>
+          <th>قند</th>
           <th>توضیح</th>
           <th>عملیات</th>
         </tr>
@@ -70,6 +77,7 @@
     </table>
   </section>
 
+  <!-- سوابق انسولین -->
   <section class="card full">
     <h2>سوابق انسولین</h2>
     <table>
@@ -88,6 +96,7 @@
   </section>
 
 </main>
+
 <script src="script.js"></script>
 </body>
 </html>
