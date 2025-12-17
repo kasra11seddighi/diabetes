@@ -2,24 +2,21 @@ let sugars = JSON.parse(localStorage.getItem("sugars"))||[];
 let insulins = JSON.parse(localStorage.getItem("insulins"))||[];
 let chart;
 
-/* DOM */
 const sugarTableBody=document.getElementById("sugarTableBody");
 const insulinTableBody=document.getElementById("insulinTableBody");
 const average=document.getElementById("average");
 const ctx=document.getElementById("chart");
 
-/* Date / Time */
 function nowDate(){return new Date().toLocaleDateString("fa-IR")}
 function nowTime(){return new Date().toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit"})}
 
 /* Modal */
 function openModal(id){
-  const m = document.getElementById(id);
-  m.style.display = "flex";  // اضافه کردن این خط
+  const m=document.getElementById(id);
+  m.style.display="flex";
   m.classList.remove("hide");
   m.classList.add("show");
 }
-
 function closeModal(){
   document.querySelectorAll(".modal").forEach(m=>{
     m.classList.add("hide");
@@ -69,7 +66,7 @@ function sugarColor(v){
 /* Render Tables */
 function renderTables(){
   sugarTableBody.innerHTML="";
-  sugars.forEach(s=>{
+  sugars.forEach((s)=>{
     sugarTableBody.innerHTML+=`<tr>
       <td>${s.date}</td><td>${s.hour}</td><td>${s.time}</td>
       <td style="color:${sugarColor(s.value)}; font-weight:700">${s.value}</td>
@@ -77,7 +74,7 @@ function renderTables(){
     </tr>`;
   });
   insulinTableBody.innerHTML="";
-  insulins.forEach(i=>{
+  insulins.forEach((i)=>{
     insulinTableBody.innerHTML+=`<tr>
       <td>${i.date}</td><td>${i.hour}</td><td>${i.type}</td><td>${i.time}</td>
       <td>${i.units}</td><td>${i.note||"-"}</td>
@@ -110,50 +107,36 @@ function drawChart(){
   });
 }
 
+/* Export PDF */
+function exportPDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({orientation:"portrait", unit:"mm", format:"a4"});
+  doc.setFontSize(16);
+  doc.text("گزارش دیابت", 105, 15, {align:"center"});
+  doc.setFontSize(12);
+  doc.text(`میانگین قند: ${avg()}`, 10, 25);
+  let y=35;
+  doc.setFontSize(10);
+  sugars.forEach((s,i)=>{
+    let color=sugarColor(s.value);
+    doc.setTextColor(parseInt(color.slice(1,3),16),parseInt(color.slice(3,5),16),parseInt(color.slice(5,7),16));
+    doc.text(`${i+1}) ${s.date} | ${s.hour} | ${s.time} | قند: ${s.value} | ${s.note||"-"}`,10,y);
+    y+=6;if(y>280){doc.addPage();y=20;}
+  });
+  doc.setTextColor(0,0,0);
+  y+=6;
+  insulins.forEach((i,j)=>{
+    doc.text(`${j+1}) ${i.date} | ${i.hour} | ${i.type} | ${i.time} | ${i.units}u | ${i.note||"-"}`,10,y);
+    y+=6;if(y>280){doc.addPage();y=20;}
+  });
+  doc.save("diabetes-report.pdf");
+}
+
 /* Render All */
 function render(){
   average.innerText=avg();
   renderTables();
   drawChart();
 }
-function exportPDF(){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation:"portrait", unit:"mm", format:"a4" });
-  
-  // عنوان
-  doc.setFontSize(16);
-  doc.text("گزارش دیابت", 105, 15, {align:"center"});
-  
-  // میانگین قند
-  doc.setFontSize(12);
-  doc.text(`میانگین قند: ${avg()}`, 10, 25);
-
-  let y = 35;
-
-  // جدول قند
-  doc.setFontSize(10);
-  doc.text("سوابق قند:", 10, y);
-  y += 6;
-  sugars.forEach((s,i)=>{
-    let color = sugarColor(s.value);
-    doc.setTextColor(color.replace("#","0x"));
-    doc.text(`${i+1}) ${s.date} | ${s.hour} | ${s.time} | قند: ${s.value} | ${s.note||"-"}`, 10, y);
-    y += 6;
-    if(y>280){ doc.addPage(); y=20; }
-  });
-
-  y += 6;
-  doc.setTextColor(0,0,0);
-  doc.text("سوابق انسولین:", 10, y);
-  y += 6;
-  insulins.forEach((i,j)=>{
-    doc.text(`${j+1}) ${i.date} | ${i.hour} | ${i.type} | ${i.time} | ${i.units}u | ${i.note||"-"}`, 10, y);
-    y += 6;
-    if(y>280){ doc.addPage(); y=20; }
-  });
-
-  doc.save("diabetes-report.pdf");
-}
-
 
 render();

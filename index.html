@@ -11,7 +11,7 @@
 
 <header class="top">
   <h1>Diabetes Tracker</h1>
-  <span>ثبت قند و انسولین (لوکال)</span>
+  <span>ثبت قند و انسولین</span>
 </header>
 
 <main class="stack">
@@ -24,8 +24,10 @@
 
   <!-- نمودار -->
   <section class="card chart">
-    <canvas id="chart"></canvas>
-    <div class="legend" style="margin-top:8px; font-size:11px; display:flex; justify-content:center; gap:10px;">
+    <div style="overflow-x:auto;">
+      <canvas id="chart" style="min-width:320px;"></canvas>
+    </div>
+    <div class="legend" style="margin-top:8px; font-size:12px; display:flex; justify-content:center; gap:10px;">
       <span style="color:#4ade80;">● طبیعی</span>
       <span style="color:#facc15;">● هشدار</span>
       <span style="color:#fb7185;">● خطر</span>
@@ -34,6 +36,7 @@
 
   <!-- جدول قند -->
   <section class="card full">
+    <button onclick="exportPDF()" style="margin-bottom:10px;">📄 دانلود PDF</button>
     <h2>سوابق قند خون</h2>
     <table>
       <thead>
@@ -98,12 +101,10 @@
 </div>
 
 <!-- Bottom Navigation -->
-<nav style="position:fixed; bottom:0; width:100%; display:flex; justify-content:space-around; background:rgba(0,0,0,0.5); padding:8px 0; backdrop-filter:blur(10px);">
+<nav>
   <button onclick="openModal('sugarModal')">🍬 قند</button>
   <button onclick="openModal('insulinModal')">💉 انسولین</button>
 </nav>
-<button onclick="exportPDF()" style="margin-bottom:10px;">📄 دانلود PDF</button>
-
 
 <script src="script.js"></script>
 </body>
