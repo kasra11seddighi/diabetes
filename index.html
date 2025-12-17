@@ -9,86 +9,49 @@
 </head>
 <body>
 
-<header>
+<header class="top">
   <h1>Diabetes Tracker</h1>
-  <p>ثبت قند و انسولین (لوکال)</p>
+  <span>ثبت قند و انسولین (لوکال)</span>
 </header>
 
-<main class="grid">
-
-  <!-- ثبت قند -->
-  <section class="card">
-    <h2>قند خون</h2>
-    <select id="time">
-      <option>صبح</option>
-      <option>ناهار</option>
-      <option>عصر</option>
-      <option>شب</option>
-    </select>
-    <input type="number" id="sugar" min="40" max="600" placeholder="mg/dl">
-    <input type="text" id="noteSugar" placeholder="توضیح">
-    <button onclick="addSugar()">ثبت قند</button>
-  </section>
-
-  <!-- ثبت انسولین -->
-  <section class="card">
-    <h2>انسولین</h2>
-    <select id="insulinType">
-      <option>نوورپید</option>
-      <option>توژئو</option>
-    </select>
-    <select id="insulinTime">
-      <option>صبح</option>
-      <option>ناهار</option>
-      <option>شب</option>
-    </select>
-    <input type="number" id="units" min="0" max="60" placeholder="واحد">
-    <input type="text" id="noteInsulin" placeholder="توضیح">
-    <button onclick="addInsulin()">ثبت انسولین</button>
-  </section>
+<main class="stack">
 
   <!-- میانگین -->
   <section class="card stat">
-    <h2>میانگین قند</h2>
-    <span id="average">---</span>
+    <p>میانگین قند</p>
+    <strong id="average">---</strong>
   </section>
 
   <!-- نمودار -->
   <section class="card chart">
     <canvas id="chart"></canvas>
+    <div class="legend" style="margin-top:8px; font-size:11px; display:flex; justify-content:center; gap:10px;">
+      <span style="color:#4ade80;">● طبیعی</span>
+      <span style="color:#facc15;">● هشدار</span>
+      <span style="color:#fb7185;">● خطر</span>
+    </div>
   </section>
 
-  <!-- سوابق قند -->
+  <!-- جدول قند -->
   <section class="card full">
     <h2>سوابق قند خون</h2>
-    <button onclick="exportPDF()">خروجی PDF</button>
     <table>
       <thead>
         <tr>
-          <th>تاریخ</th>
-          <th>ساعت</th>
-          <th>زمان</th>
-          <th>قند</th>
-          <th>توضیح</th>
-          <th>عملیات</th>
+          <th>تاریخ</th><th>ساعت</th><th>زمان</th><th>قند</th><th>توضیح</th>
         </tr>
       </thead>
       <tbody id="sugarTableBody"></tbody>
     </table>
   </section>
 
-  <!-- سوابق انسولین -->
+  <!-- جدول انسولین -->
   <section class="card full">
     <h2>سوابق انسولین</h2>
     <table>
       <thead>
         <tr>
-          <th>تاریخ</th>
-          <th>ساعت</th>
-          <th>نوع</th>
-          <th>زمان</th>
-          <th>واحد</th>
-          <th>توضیح</th>
+          <th>تاریخ</th><th>ساعت</th><th>نوع</th><th>زمان</th><th>واحد</th><th>توضیح</th>
         </tr>
       </thead>
       <tbody id="insulinTableBody"></tbody>
@@ -96,6 +59,51 @@
   </section>
 
 </main>
+
+<!-- Modal ثبت قند -->
+<div id="sugarModal" class="modal">
+  <div class="modal-box">
+    <h3>ثبت قند</h3>
+    <select id="timeModal">
+      <option>صبح</option>
+      <option>ناهار</option>
+      <option>عصر</option>
+      <option>شب</option>
+    </select>
+    <input type="number" id="sugarModalInput" min="40" max="600" placeholder="mg/dl">
+    <input type="text" id="noteSugarModal" placeholder="توضیح">
+    <button onclick="addSugarModal()">ثبت</button>
+    <button class="close" onclick="closeModal()">بستن</button>
+  </div>
+</div>
+
+<!-- Modal ثبت انسولین -->
+<div id="insulinModal" class="modal">
+  <div class="modal-box">
+    <h3>ثبت انسولین</h3>
+    <select id="insulinTypeModal">
+      <option>نوورپید</option>
+      <option>توژئو</option>
+    </select>
+    <select id="insulinTimeModal">
+      <option>صبح</option>
+      <option>ناهار</option>
+      <option>شب</option>
+    </select>
+    <input type="number" id="unitsModal" min="0" max="60" placeholder="واحد">
+    <input type="text" id="noteInsulinModal" placeholder="توضیح">
+    <button onclick="addInsulinModal()">ثبت</button>
+    <button class="close" onclick="closeModal()">بستن</button>
+  </div>
+</div>
+
+<!-- Bottom Navigation -->
+<nav style="position:fixed; bottom:0; width:100%; display:flex; justify-content:space-around; background:rgba(0,0,0,0.5); padding:8px 0; backdrop-filter:blur(10px);">
+  <button onclick="openModal('sugarModal')">🍬 قند</button>
+  <button onclick="openModal('insulinModal')">💉 انسولین</button>
+</nav>
+<button onclick="exportPDF()" style="margin-bottom:10px;">📄 دانلود PDF</button>
+
 
 <script src="script.js"></script>
 </body>

@@ -1,147 +1,159 @@
-let sugars = JSON.parse(localStorage.getItem("sugars")) || [];
-let insulins = JSON.parse(localStorage.getItem("insulins")) || [];
-let editSugarIndex = null;
-const ctx = document.getElementById("chart");
+let sugars = JSON.parse(localStorage.getItem("sugars"))||[];
+let insulins = JSON.parse(localStorage.getItem("insulins"))||[];
 let chart;
 
-const sugarInput = document.getElementById("sugar");
-const timeSelect = document.getElementById("time");
-const noteSugar = document.getElementById("noteSugar");
-const sugarTableBody = document.getElementById("sugarTableBody");
+/* DOM */
+const sugarTableBody=document.getElementById("sugarTableBody");
+const insulinTableBody=document.getElementById("insulinTableBody");
+const average=document.getElementById("average");
+const ctx=document.getElementById("chart");
 
-const insulinType = document.getElementById("insulinType");
-const insulinTime = document.getElementById("insulinTime");
-const unitsInput = document.getElementById("units");
-const noteInsulin = document.getElementById("noteInsulin");
-const insulinTableBody = document.getElementById("insulinTableBody");
-const average = document.getElementById("average");
+/* Date / Time */
+function nowDate(){return new Date().toLocaleDateString("fa-IR")}
+function nowTime(){return new Date().toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit"})}
 
-function getTimeNow() {
-  return new Date().toLocaleTimeString("fa-IR", { hour: "2-digit", minute: "2-digit" });
+/* Modal */
+function openModal(id){
+  const m = document.getElementById(id);
+  m.style.display = "flex";  // اضافه کردن این خط
+  m.classList.remove("hide");
+  m.classList.add("show");
 }
 
-function addSugar() {
-  const value = +sugarInput.value;
-  const time = timeSelect.value;
-  const note = noteSugar.value;
-  if (!value) return;
-  const item = { date: new Date().toLocaleDateString("fa-IR"), hour: getTimeNow(), time, value, note };
-  if (editSugarIndex !== null) {
-    sugars[editSugarIndex] = item;
-    editSugarIndex = null;
-  } else {
-    sugars.push(item);
-  }
-  localStorage.setItem("sugars", JSON.stringify(sugars));
-  clearSugarInputs();
+function closeModal(){
+  document.querySelectorAll(".modal").forEach(m=>{
+    m.classList.add("hide");
+    setTimeout(()=>{m.classList.remove("show","hide"); m.style.display="none";},200);
+  });
+}
+
+/* Add Sugar */
+function addSugarModal(){
+  const v=+document.getElementById("sugarModalInput").value;
+  if(!v) return;
+  const time=document.getElementById("timeModal").value;
+  const note=document.getElementById("noteSugarModal").value;
+  sugars.push({date:nowDate(),hour:nowTime(),time,value:v,note});
+  localStorage.setItem("sugars",JSON.stringify(sugars));
+  document.getElementById("sugarModalInput").value="";
+  document.getElementById("noteSugarModal").value="";
+  closeModal();
   render();
 }
 
-function addInsulin() {
-  const units = +unitsInput.value;
-  if (!units) return;
-  insulins.push({ date: new Date().toLocaleDateString("fa-IR"), hour: getTimeNow(), type: insulinType.value, time: insulinTime.value, units, note: noteInsulin.value });
-  localStorage.setItem("insulins", JSON.stringify(insulins));
-  clearInsulinInputs();
+/* Add Insulin */
+function addInsulinModal(){
+  const type=document.getElementById("insulinTypeModal").value;
+  const time=document.getElementById("insulinTimeModal").value;
+  const units=+document.getElementById("unitsModal").value;
+  const note=document.getElementById("noteInsulinModal").value;
+  if(!units) return;
+  insulins.push({date:nowDate(),hour:nowTime(),type,time,units,note});
+  localStorage.setItem("insulins",JSON.stringify(insulins));
+  document.getElementById("unitsModal").value="";
+  document.getElementById("noteInsulinModal").value="";
+  closeModal();
   render();
 }
 
-function editSugar(i) {
-  const s = sugars[i];
-  sugarInput.value = s.value;
-  timeSelect.value = s.time;
-  noteSugar.value = s.note;
-  editSugarIndex = i;
+/* Average Sugar */
+function avg(){ if(!sugars.length) return "---"; return Math.round(sugars.reduce((a,b)=>a+b.value,0)/sugars.length); }
+
+/* Sugar Color */
+function sugarColor(v){
+  if(v<140) return "#4ade80";
+  if(v<180) return "#facc15";
+  return "#fb7185";
 }
 
-function deleteSugar(i) {
-  if (!confirm("حذف شود؟")) return;
-  sugars.splice(i, 1);
-  localStorage.setItem("sugars", JSON.stringify(sugars));
-  render();
-}
-
-function averageSugar() {
-  if (!sugars.length) return "---";
-  return Math.round(sugars.reduce((a, b) => a + b.value, 0) / sugars.length);
-}
-
-function sugarClass(v) {
-  if (v < 140) return "green";
-  if (v < 180) return "yellow";
-  return "red";
-}
-
-function renderSugarTable() {
-  sugarTableBody.innerHTML = "";
-  sugars.forEach((s, i) => {
-    sugarTableBody.innerHTML += `<tr>
-      <td>${s.date}</td>
-      <td>${s.hour}</td>
-      <td>${s.time}</td>
-      <td class="badge ${sugarClass(s.value)}">${s.value}</td>
-      <td>${s.note || "-"}</td>
-      <td class="actions">
-        <button onclick="editSugar(${i})">✏️</button>
-        <button class="danger" onclick="deleteSugar(${i})">🗑️</button>
-      </td>
+/* Render Tables */
+function renderTables(){
+  sugarTableBody.innerHTML="";
+  sugars.forEach(s=>{
+    sugarTableBody.innerHTML+=`<tr>
+      <td>${s.date}</td><td>${s.hour}</td><td>${s.time}</td>
+      <td style="color:${sugarColor(s.value)}; font-weight:700">${s.value}</td>
+      <td>${s.note||"-"}</td>
+    </tr>`;
+  });
+  insulinTableBody.innerHTML="";
+  insulins.forEach(i=>{
+    insulinTableBody.innerHTML+=`<tr>
+      <td>${i.date}</td><td>${i.hour}</td><td>${i.type}</td><td>${i.time}</td>
+      <td>${i.units}</td><td>${i.note||"-"}</td>
     </tr>`;
   });
 }
 
-function renderInsulinTable() {
-  insulinTableBody.innerHTML = "";
-  insulins.forEach(i => {
-    insulinTableBody.innerHTML += `<tr>
-      <td>${i.date}</td>
-      <td>${i.hour}</td>
-      <td>${i.type}</td>
-      <td>${i.time}</td>
-      <td>${i.units}u</td>
-      <td>${i.note || "-"}</td>
-    </tr>`;
-  });
-}
-
-function drawChart() {
-  if (chart) chart.destroy();
-  const labels = sugars.map((_, i) => i + 1);
-  const data = sugars.map(s => s.value);
-  chart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels,
-      datasets: [
-        { label: "قند خون", data, borderColor: "#38bdf8", tension: 0.3, fill: false },
-        { label: "نرمال", data: labels.map(() => 140), borderColor: "#16a34a", borderDash: [5,5] },
-        { label: "هشدار", data: labels.map(() => 180), borderColor: "#f59e0b", borderDash: [5,5] }
-      ]
+/* Draw Chart */
+function drawChart(){
+  if(chart) chart.destroy();
+  chart=new Chart(ctx,{
+    type:"line",
+    data:{
+      labels:sugars.map((_,i)=>i+1),
+      datasets:[{
+        data:sugars.map(s=>s.value),
+        borderColor:"#38bdf8",
+        tension:0.4,
+        pointRadius:5,
+        pointHoverRadius:7,
+        pointBackgroundColor:sugars.map(s=>sugarColor(s.value)),
+        pointBorderColor:"#020617",
+        pointBorderWidth:2
+      }]
     },
-    options: { plugins: { legend: { display: false } }, scales: { y: { min: 40, max: 300 } } }
+    options:{
+      plugins:{legend:{display:false}},
+      scales:{y:{min:40,max:300,grid:{color:"rgba(255,255,255,0.05)"}}}
+    }
   });
 }
 
-function exportPDF() {
+/* Render All */
+function render(){
+  average.innerText=avg();
+  renderTables();
+  drawChart();
+}
+function exportPDF(){
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  doc.setFontSize(14);
-  doc.text("گزارش قند خون", 105, 10, { align: "center" });
+  const doc = new jsPDF({ orientation:"portrait", unit:"mm", format:"a4" });
+  
+  // عنوان
+  doc.setFontSize(16);
+  doc.text("گزارش دیابت", 105, 15, {align:"center"});
+  
+  // میانگین قند
+  doc.setFontSize(12);
+  doc.text(`میانگین قند: ${avg()}`, 10, 25);
+
+  let y = 35;
+
+  // جدول قند
   doc.setFontSize(10);
-  doc.text(`میانگین قند: ${averageSugar()}`, 10, 20);
-  let y = 30;
-  sugars.forEach((s, i) => { doc.text(`${i+1}) ${s.date} ${s.hour} | ${s.time} | قند: ${s.value} | ${s.note || "-"}`, 10, y); y += 8; if(y>280){ doc.addPage(); y=20; } });
-  insulins.forEach((i,j) => { doc.text(`${j+1}) ${i.date} ${i.hour} | ${i.type} | ${i.time} | ${i.units}u | ${i.note || "-"}`, 10, y); y += 8; if(y>280){ doc.addPage(); y=20; } });
+  doc.text("سوابق قند:", 10, y);
+  y += 6;
+  sugars.forEach((s,i)=>{
+    let color = sugarColor(s.value);
+    doc.setTextColor(color.replace("#","0x"));
+    doc.text(`${i+1}) ${s.date} | ${s.hour} | ${s.time} | قند: ${s.value} | ${s.note||"-"}`, 10, y);
+    y += 6;
+    if(y>280){ doc.addPage(); y=20; }
+  });
+
+  y += 6;
+  doc.setTextColor(0,0,0);
+  doc.text("سوابق انسولین:", 10, y);
+  y += 6;
+  insulins.forEach((i,j)=>{
+    doc.text(`${j+1}) ${i.date} | ${i.hour} | ${i.type} | ${i.time} | ${i.units}u | ${i.note||"-"}`, 10, y);
+    y += 6;
+    if(y>280){ doc.addPage(); y=20; }
+  });
+
   doc.save("diabetes-report.pdf");
 }
 
-function render() {
-  average.innerText = averageSugar();
-  renderSugarTable();
-  renderInsulinTable();
-  drawChart();
-}
-
-function clearSugarInputs() { sugarInput.value=""; noteSugar.value=""; }
-function clearInsulinInputs() { unitsInput.value=""; noteInsulin.value=""; }
 
 render();
